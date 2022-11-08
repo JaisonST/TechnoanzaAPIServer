@@ -4,7 +4,8 @@
   "description": "Api calls for Technovanza website",
   "main": "server.js",
   "scripts": {
-    "devStart": "nodemon server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
