@@ -4,8 +4,10 @@ function user_functions(app,con){
         con.query(`Select * from users where id = ${req.params.id};`, function (err, result) {
             if (err) throw err;
             p=JSON.stringify(result);
-            if (p=="[]"){res.status(404).json({message: "User not found", error: "invalid id"})
-            return}
+            if (p=="[]"){
+                res.status(404).json({message: "User not found", error: "invalid id"})
+                return
+            }
             else res.end(p);
         });
     })
@@ -21,18 +23,11 @@ function user_functions(app,con){
         });
     })
 
-    
     //get total registered user count 
     app.get('/user/count', function(req,res) {
-        con.query(`select count(distinct id) as count from users;`, function (err, result) {
+        con.query(`Select count(id) as count from users;`, function (err, result) {
             if (err) throw err;
-            p=JSON.stringify(result);
-            //console.log(result[0]['count'])
-            if (p=="[]"){
-                res.status(404).json({message: "User not found", error: "invalid email"})
-                return
-            }
-            else res.end(p);    
+            res.end(JSON.stringify(result));    
         });
     })
 }
