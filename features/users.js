@@ -1,7 +1,3 @@
-const e = require("express");
-const { json } = require("express");
-const { eventNames } = require("../db");
-
 function user_functions(app,con){
     //get user details by id 
     app.get('/user/id/:id', function(req,res) {
