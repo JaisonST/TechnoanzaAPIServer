@@ -1,4 +1,3 @@
-
 function events_functions(app, con){
 
     async function check_event_exists(event_name){
@@ -28,7 +27,7 @@ function events_functions(app, con){
         });
     } 
 
-    async function check_uesrs_exists(members){
+    async function check_users_exists(members){
         sql = `select count(*) from users where email in(`;
         var email_list = [];
         for (var i in members){
@@ -48,7 +47,7 @@ function events_functions(app, con){
         });
     } 
 
-    async function check_users_registerd(members, event_name){
+    async function check_users_registered(members, event_name){
         var sql = `select count(*) from ${event_name} where email in(`;
         var email_list = [];
         for (var i in members){
@@ -106,17 +105,17 @@ function events_functions(app, con){
         try{
             const event_exists = await check_event_exists(event_name); 
             if (!event_exists){var table_creation = await create_table(event_name);} 
-            const check_users = await check_uesrs_exists(members); 
+            const check_users = await check_users_exists(members); 
             if (!check_users){
                 //res users dont exists
-                res.status(401).json({message: "Team, not registered", error: "user not found"});    
+                res.status(401).json({message: "Team not registered", error: "user not found"});    
                 return;  
             }
             
-            const check_registered = await check_users_registerd(members, event_name); 
+            const check_registered = await check_users_registered(members, event_name); 
             if (check_registered){
                 //res users dont exists
-                res.status(401).json({message: "Team, not registered", error: "user already registered"});    
+                res.status(401).json({message: "Team not registered", error: "user already registered"});    
                 return;  
             }
 
@@ -128,6 +127,57 @@ function events_functions(app, con){
             res.status(500).json({message: "Team not registered", error: "Server error"}); 
         } 
     })
+    ///get all events
+    app.get('/events/get_events', function(req,res){
+        con.query(`Select * from events;`, function (err, result) {
+            if (err) throw err;
+            p=JSON.stringify(result);
+            if (p=="[]"){
+                res.status(404).json({message: "No event created", error: "No events"})
+                return
+            }
+            else res.end(p);
+        });
+    })
+    ///get users registered for a particular event
+    app.get('/events/get_registered_users/:event_name', function(req,res){
+        con.query(`Select email from ${req.params.event_name};`, function (err, result) {
+            if (err) throw err;
+            p=JSON.stringify(result);
+            if (p=="[]"){
+                res.status(404).json({message: "No users registered for this event", error: "No registered users"})
+                return
+            }
+            else res.end(p);
+        });
+    })
+    ///get teams for a particular event
+     app.get('/events/get_registered_teams/:event_name', function(req,res){
+        con.query(`Select * from ${req.params.event_name} order by teamid;`, function (err, result) {
+            if (err) throw err;
+            var final_result = [];
+            var i = 0;
+            while (i<result.length) {
+                var members = [];
+                var j = i;
+                while (result[j]["teamid"] == result[i]["teamid"]){
+                    members.push({email:result[j]["email"]});
+                    j++;
+                    if (j==result.length){
+                        break;
+                    }
+                }
+                final_result.push({teamName:result[i]["teamName"],members});
+                i = j;
+            }               
+            p=JSON.stringify(final_result);
+            if (p=="[]"){
+                res.status(404).json({message: "No users registered for this event", error: "No registered users"})
+                return
+            }
+            else res.end(p);
+        });
+    })   
 }
 
 module.exports = events_functions
