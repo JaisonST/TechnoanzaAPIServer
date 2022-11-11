@@ -3,6 +3,10 @@ var app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+var cors = require('cors');
+
+app.use(cors({origin: true}));
+
 app.get('/', function (req, res) {       
       res.end("Technovenza API Server");
 })
