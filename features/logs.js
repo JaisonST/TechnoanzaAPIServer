@@ -4,7 +4,7 @@ function logging(app,con){
         const date = new Date().toISOString().replace('T', ' ').slice(0,-1);
         const email = req.body.email;
         const eventname = req.body.eventname
-        con.query(`insert into logs values("${date}","${email}","${eventname}")`)
+        con.query(`insert into logs(date,email,event) values("${date}","${email}","${eventname}")`)
         res.end(JSON.stringify({'message':'success'}));
     })
 
