@@ -1,7 +1,19 @@
 function events_functions(app, con){
+        
+        app.post('/events/getscore',function(req,res){
+            var round = req.body.round;
+            var table = req.body.event + "scores";
+            con.query(`select teamid from ${table} where round = ${round} order by score desc`,
+            function(err,result){
+                if (err){
+                   if (err.code == "ER_NO_SUCH_TABLE") res.status(401).json({message: "No Scores Fetched", error: "Event has no entries"});
+                   else if(err) throw err;
+                }
+                else res.end(JSON.stringify({"teams":result}))
+            });
+        })
 
         app.post('/events/setscore', async function(req,res) {
-    
         var score = req.body.score
         var members = req.body.members
         var round = req.body.round
