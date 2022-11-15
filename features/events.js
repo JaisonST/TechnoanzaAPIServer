@@ -1,6 +1,44 @@
-
 function events_functions(app, con){
 
+        app.post('/events/setscore', async function(req,res) {
+    
+        var score = req.body.score
+        var members = req.body.members
+        var round = req.body.round
+        var eventname = req.body.event
+        var teamid = "";members.sort();members.forEach(element => teamid+=element);
+        var table=`${eventname}scores`;
+        if (await make_score_table(table,round,teamid)){
+            var query = `insert into ${table}(round,teamid,score) values( ${round}, "${teamid}" , ${score} )`
+            con.query(query,function(err,result){
+                if (err) throw er;
+                else {res.end(JSON.stringify({"message":"Score Added"}))}
+            });
+        }
+        else res.status(401).json({message: "Score not registered", error: `Team score exists for round ${round}`});
+    })
+
+    async function make_score_table(table,round,teamid){
+        return new Promise(function(resolve, reject) {
+            con.query(`CREATE table if not exists ${table}(round int, teamid varchar(200),score int)`,
+            async function(err,result){
+                if (await check_dupl(table,round,teamid)) resolve(true);
+                else resolve(false);
+            });
+        });
+    }
+
+    async function check_dupl(table,round,teamid){
+        return new Promise(function(resolve, reject) {
+            con.query(`select * from ${table} where round = ${round} && teamid = "${teamid}"`,
+            function(err,result){
+                if (err) reject(err);
+                else if (result.length == 0)resolve(true);
+                else resolve(false);
+            });
+        })
+    }
+    
     async function check_event_exists(event_name){
         var sql = `select count(*) from events where eventName = "${event_name}";`; 
         return new Promise(function(resolve, reject) {
