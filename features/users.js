@@ -19,6 +19,17 @@ function user_functions(app,con){
         });
     })
 
+    //get pages of users
+    app.get('/user/getusers/:pageno', function(req,res){
+        const userIncrementValue = 20;
+        con.query(`Select * from users order by id desc limit ${(req.params.pageno-1)*userIncrementValue},${userIncrementValue};`, function (err,result){
+            if (err) throw err;
+            if (result==""){res.status(404).json({message: "Page number out of bounds", error: "Invalid page number"})
+            return}
+            else res.end(JSON.stringify({"users":result}));
+        })
+    })
+
     //get total registered user count 
     app.get('/user/count', function(req,res) {
         con.query(`Select count(id) as count from users;`, function (err, result) {
