@@ -9,6 +9,13 @@ function logging(app,con){
         });
     })
 
+    app.get('/logs/event/:event',async function(req,res){
+        const event = req.params.event;
+        con.query(`select * from logs where event = "${event}"`,function(err,result){
+            if (err) throw err;
+            else res.end(JSON.stringify({'logs':result}));
+        });
+    })
     
     
     app.post('/log',function(req,res){
