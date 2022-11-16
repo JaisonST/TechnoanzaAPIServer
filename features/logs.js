@@ -1,5 +1,16 @@
 function logging(app,con){
     
+    app.get('/logs/counttimed/:event',async function(req,res){
+    const event = req.params.event;
+    const date = new Date().toISOString();
+    con.query(`select * from logs where TIME_TO_SEC("${date}")-TIME_TO_SEC(date) <= 15*60 && event = "${event}"`,function(err,result){
+        if (err) throw err;
+        else res.end(JSON.stringify({'logs':result}));
+        });
+    })
+
+    
+    
     app.post('/log',function(req,res){
         const date = new Date().toISOString().replace('T', ' ').slice(0,-1);
         const email = req.body.email;
