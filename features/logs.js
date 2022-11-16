@@ -8,6 +8,14 @@ function logging(app,con){
         res.end(JSON.stringify({'message':'success'}));
     })
 
+    //get total logs count
+    app.get('/logs/count', function(req,res) {
+        con.query(`Select count(email) as count from logs;`, function (err, result) {
+            if (err) throw err;
+            res.end(JSON.stringify(result[0]));    
+        });
+    })
+
     app.get('/getlogs/:email',async function(req,res){
         const email = req.params.email;
         if (await usercheck(email)){

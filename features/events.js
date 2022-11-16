@@ -190,6 +190,16 @@ function events_functions(app, con){
             else res.end(p);
         });
     })
+
+    ///get users registered count for a particular event
+    app.get('/events/count/:event_name', function(req,res){
+        con.query(`Select count(email) from ${req.params.event_name};`, function (err, result) {
+            if (err) throw err;
+            res.end(JSON.stringify(result[0]));    
+        });
+    })
+
+
     ///get users registered for a particular event
     app.get('/events/get_registered_users/:event_name', function(req,res){
         con.query(`Select email from ${req.params.event_name};`, function (err, result) {
